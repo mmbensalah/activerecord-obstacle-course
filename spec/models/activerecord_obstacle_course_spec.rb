@@ -35,293 +35,225 @@ describe 'ActiveRecord Obstacle Course' do
 
   ### Here are the docs associated with this lesson: http://guides.rubyonrails.org/active_record_querying.html
 
-  it 'finds orders by amount' do
-    # ----------------------- Using Ruby -------------------------
-    orders_of_500 = Order.all.select { |order| order.amount == 500 }
-    orders_of_200 = Order.all.select { |order| order.amount == 200 }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    orders_of_500 = Order.where(amount:500)
-    orders_of_200 = Order.where(amount:200)
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders_of_500.count).to eq(1)
-    expect(orders_of_200.count).to eq(1)
-  end
-
-  it 'finds order id of smallest order' do
-    # ----------------------- Using Raw SQL ----------------------
-    order_id = ActiveRecord::Base.connection.execute('SELECT id FROM orders ORDER BY amount ASC LIMIT 1').first['id']
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(order_id).to eq(order_1.id)
-  end
-
-  it 'finds order id of largest order' do
-    # ----------------------- Using Raw SQL ----------------------
-    order_id = ActiveRecord::Base.connection.execute('SELECT id FROM orders ORDER BY amount DESC LIMIT 1').first['id']
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(order_id).to eq(order_15.id)
-  end
-
-  it 'finds orders of multiple amounts' do
-    # ----------------------- Using Ruby -------------------------
-    orders_of_500_and_700 = Order.all.select do |order|
-      order.amount == 500 || order.amount == 700
-    end
-
-    orders_of_700_and_1000 = Order.all.select do |order|
-      order.amount == 700 || order.amount == 1000
-    end
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders_of_500_and_700.count).to eq(2)
-    expect(orders_of_700_and_1000.count).to eq(2)
-  end
-
-  it 'finds multiple items by id' do
-    ids = [item_1.id, item_2.id, item_4.id]
-
-    # ----------------------- Using Ruby -------------------------
-    items = Item.all.select { |item| ids.include?(item.id) }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(items).to eq([item_1, item_2, item_4])
-  end
-
-  it 'finds multiple orders by id' do
-    ids = [order_1.id, order_3.id, order_5.id, order_7.id]
-    expected_result = [order_1, order_3, order_5, order_7]
-
-    # ----------------------- Using Ruby -------------------------
-    orders = Order.all.select { |order| ids.include?(order.id) }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders).to eq(expected_result)
-  end
-
-  it 'finds orders with an amount between 700 and 1000' do
-    expected_result = [order_8, order_10, order_11, order_12, order_13, order_14, order_15]
-
-    # ----------------------- Using Ruby -------------------------
-    orders_between_700_and_1000 = Order.all.select { |order| order.amount >= 700 && order.amount <= 1000 }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders_between_700_and_1000).to eq(expected_result)
-  end
-
-  it 'finds orders with an amount less than 550' do
-    expected_result = [order_1, order_2, order_3, order_4]
-
-    # ----------------------- Using Ruby -------------------------
-    orders_less_than_550 = Order.all.select { |order| order.amount < 550 }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders_less_than_550).to eq(expected_result)
-  end
-
-  it 'finds orders for a user' do
-    expected_result = [order_3, order_6, order_9, order_12, order_15]
-
-    # ----------------------- Using Ruby -------------------------
-    orders_of_user_3 = Order.all.select { |order| order.user_id == 3 }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders_of_user_3).to eq(expected_result)
-  end
-
-  it 'sorts the orders from most expensive to least expensive' do
-    expected_result = [order_15, order_14, order_13, order_12, order_11, order_10, order_8, order_9, order_7, order_6, order_5, order_4, order_3, order_2, order_1]
-
-    # ----------------------- Using Ruby -------------------------
-    orders = Order.all.sort_by { |order| order.amount }.reverse
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders).to eq(expected_result)
-  end
-
-  it 'sorts the orders from least expensive to most expensive' do
-    expected_result = [order_1, order_2, order_3, order_4, order_5, order_6, order_7, order_9, order_8, order_10, order_11, order_12, order_13, order_14, order_15]
-
-    # ----------------------- Using Ruby -------------------------
-    orders = Order.all.sort_by { |order| order.amount }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(orders).to eq(expected_result)
-  end
-
-  it 'should return all items except items: 3, 4 & 5' do
-    items_not_included = [item_3, item_4, item_5]
-    expected_result = [item_1, item_2, item_7, item_8, item_9, item_10]
-
-    # ----------------------- Using Ruby -------------------------
-    items = Item.all.map { |item| item unless items_not_included.include?(item) }.compact
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(items).to eq(expected_result)
-  end
-
-  it "groups an order's items by name" do
-    expected_result = [item_2, item_3, item_4, item_5]
-
-    # ----------------------- Using Ruby -------------------------
-    order = Order.find(3)
-    grouped_items = order.items.sort_by { |item| item.name }
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(grouped_items).to eq(expected_result)
-  end
-
-  it 'plucks all values from one column' do
-    expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
-
-    # ----------------------- Using Ruby -------------------------
-    names = Item.all.map(&:name)
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(names).to eq(expected_result)
-  end
-
-  it 'gets all item names associated with all orders' do
-    expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
-                       'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
-                       'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5',
-                       'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
-                       'Thing 1', 'Thing 5', 'Thing 4', 'Thing 7',
-                       'Thing 5', 'Thing 8', 'Thing 9', 'Thing 10',
-                       'Thing 1', 'Thing 5', 'Thing 7', 'Thing 9',
-                       'Thing 2', 'Thing 3', 'Thing 8', 'Thing 9',
-                       'Thing 3', 'Thing 4', 'Thing 8', 'Thing 10',
-                       'Thing 1', 'Thing 5', 'Thing 4', 'Thing 7',
-                       'Thing 5', 'Thing 4', 'Thing 7', 'Thing 9',
-                       'Thing 1', 'Thing 3', 'Thing 7', 'Thing 10',
-                       'Thing 2', 'Thing 3', 'Thing 4', 'Thing 7',
-                       'Thing 3', 'Thing 5', 'Thing 8', 'Thing 9',
-                       'Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
-
-    # ----------------------- Using Ruby -------------------------
-    names = Order.all.map do |order|
-      if order.items
-        order.items.map { |item| item.name }
-      end
-    end
-
-    names = names.flatten
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(names).to eq(expected_result)
-  end
-
-  it 'returns the names of users who ordered one specific item' do
-    expected_result = [user_3.name, user_2.name]
-
-    # ----------------------- Using Raw SQL-----------------------
-    users = ActiveRecord::Base.connection.execute("
-      select
-        distinct users.name
-      from users
-        join orders on orders.user_id=users.id
-        join order_items ON order_items.order_id=orders.id
-      where order_items.item_id=#{item_8.id}
-      ORDER BY users.name")
-    users = users.map {|u| u['name']}
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(users).to eq(expected_result)
-  end
-
-  it 'returns the name of items associated with a specific order' do
-    expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
-
-    # ----------------------- Using Ruby -------------------------
-    names = Order.last.items.all.map(&:name)
-    # ------------------------------------------------------------
-
-    # ------------------ Using ActiveRecord ----------------------
-    # Solution goes here
-    # ------------------------------------------------------------
-
-    # Expectation
-    expect(names).to eq(expected_result)
-  end
+  # it 'finds orders by amount' do
+  #   # ----------------------- Using Ruby -------------------------
+  #   # orders_of_500 = Order.all.select { |order| order.amount == 500 }
+  #   # orders_of_200 = Order.all.select { |order| order.amount == 200 }
+  #   # ------------------------------------------------------------
+  #
+  #   # ------------------ Using ActiveRecord ----------------------
+  #   orders_of_500 = Order.where(amount:500)
+  #   orders_of_200 = Order.where(amount:200)
+  #   # ------------------------------------------------------------
+  #
+  #   # Expectation
+  #   expect(orders_of_500.count).to eq(1)
+  #   expect(orders_of_200.count).to eq(1)
+  # end
+  # it 'finds order id of smallest order' do
+  #   # ----------------------- Using Raw SQL ----------------------
+  #   # order_id = ActiveRecord::Base.connection.execute('SELECT id FROM orders ORDER BY amount ASC LIMIT 1').first['id']
+  #   # ------------------------------------------------------------
+  #
+  #   # ------------------ Using ActiveRecord ----------------------
+  #   order_id = Order.select(:id).order(:amount).first.id
+  #   # ------------------------------------------------------------
+  #
+  #   # Expectationreq
+  #   expect(order_id).to eq(order_1.id)
+  # end
+  #
+  # it 'finds order id of largest order' do
+  #   # ----------------------- Using Raw SQL ----------------------
+  #   order_id = ActiveRecord::Base.connection.execute('SELECT id FROM orders ORDER BY amount DESC LIMIT 1').first['id']
+  #   # ------------------------------------------------------------
+  #
+  #   # ------------------ Using ActiveRecord ----------------------
+  #   order_id = Order.select(:id).order(amount: :desc).first.id
+  #   # ------------------------------------------------------------
+  #
+  #   # Expectation
+  #   expect(order_id).to eq(order_15.id)
+  # end
+  #
+  # it 'finds orders of multiple amounts' do
+  #   # ----------------------- Using Ruby -------------------------
+  #   orders_of_500_and_700 = Order.all.select do |order|
+  #     order.amount == 500 || order.amount == 700
+  #   end
+  #
+  #   orders_of_700_and_1000 = Order.all.select do |order|
+  #     order.amount == 700 || order.amount == 1000
+  #   end
+  #   # ------------------------------------------------------------
+  #
+  #   # ------------------ Using ActiveRecord ----------------------
+  #   x = Order.where(amount:500)
+  #   y = Order.where(amount:700)
+  #   y.or(x)
+  #   # ------------------------------------------------------------
+  #
+  #   # Expectation
+  #   expect(orders_of_500_and_700.count).to eq(2)
+  #   expect(orders_of_700_and_1000.count).to eq(2)
+  # end
+
+  # it 'finds multiple items by id' do
+  #   ids = [item_1.id, item_2.id, item_4.id]
+  #
+  #   items = Item.all.select { |item| ids.include?(item.id) }
+  #
+  #   items = Item.find([item_1.id, item_2.id, item_4.id])
+  #
+  #   expect(items).to eq([item_1, item_2, item_4])
+  # end
+
+  # it 'finds multiple orders by id' do
+  #   ids = [order_1.id, order_3.id, order_5.id, order_7.id]
+  #   expected_result = [order_1, order_3, order_5, order_7]
+  #
+  #   orders = Order.all.select { |order| ids.include?(order.id) }
+  #
+  #   orders = Order.find([order_1.id, order_3.id, order_5.id, order_7.id])
+  #
+  #   expect(orders).to eq(expected_result)
+  # end
+
+  # it 'finds orders with an amount between 700 and 1000' do
+  #   expected_result = [order_8, order_10, order_11, order_12, order_13, order_14, order_15]
+  #
+  #   orders_between_700_and_1000 = expected_result = Order.where(amount: (700..1000))
+  #
+  #   expect(orders_between_700_and_1000).to eq(expected_result)
+  # end
+  #
+  # it 'finds orders with an amount less than 550' do
+  #   expected_result = [order_1, order_2, order_3, order_4]
+  #
+  #   orders_less_than_550 = Order.where(amount: (1..549))
+  #
+  #   expect(orders_less_than_550).to eq(expected_result)
+  # end
+
+  # it 'finds orders for a user' do
+  #   expected_result = [order_3, order_6, order_9, order_12, order_15]
+  #
+  #   # orders_of_user_3 = Order.all.select { |order| order.user_id == 3 }
+  #
+  #   orders_of_user_3 = Order.where(user_id: 3)
+  #
+  #   expect(orders_of_user_3).to eq(expected_result)
+  # end
+
+  # it 'sorts the orders from most expensive to least expensive' do
+  #   expected_result = [order_15, order_14, order_13, order_12, order_11, order_10, order_8, order_9, order_7, order_6, order_5, order_4, order_3, order_2, order_1]
+  #
+  #   # orders = Order.all.sort_by { |order| order.amount }.reverse
+  #
+  #   orders = Order.order(amount: :desc)
+  #
+  #   expect(orders).to eq(expected_result)
+  # end
+
+  # it 'sorts the orders from least expensive to most expensive' do
+  #   expected_result = [order_1, order_2, order_3, order_4, order_5, order_6, order_7, order_9, order_8, order_10, order_11, order_12, order_13, order_14, order_15]
+  #
+  #   # orders = Order.all.sort_by { |order| order.amount }
+  #
+  #   orders = Order.order(amount: :asc)
+  #
+  #   expect(orders).to eq(expected_result)
+  # end
+
+  # it 'should return all items except items: 3, 4 & 5' do
+  #   items_not_included = [item_3, item_4, item_5]
+  #   expected_result = [item_1, item_2, item_7, item_8, item_9, item_10]
+  #
+  #   # items = Item.all.map { |item| item unless items_not_included.include?(item) }.compact
+  #   # items_not_included = Item.where.not(item: [item_3, item_4, item_5]).pluck(:item_id)
+  #
+  #   items = Item.where.not(id: items_not_included)
+  #
+  #   expect(items).to eq(expected_result)
+  # end
+
+  # it "groups an order's items by name" do
+  #   expected_result = [item_2, item_3, item_4, item_5]
+  #
+  #   order = Order.find(3)
+  #   # grouped_items = order.items.sort_by { |item| item.name }
+  #
+  #   grouped_items = order.items.order(name: :asc)
+  #
+  #   expect(grouped_items).to eq(expected_result)
+  # end
+
+  # it 'plucks all values from one column' do
+  #   expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5', 'Thing 7', 'Thing 8', 'Thing 9', 'Thing 10']
+  #
+  #   # names = Item.all.map(&:name)
+  #
+  #   names = Item.pluck(:name)
+  #
+  #   expect(names).to eq(expected_result)
+  # end
+
+  # it 'gets all item names associated with all orders' do
+  #   expected_result = ['Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
+  #                      'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
+  #                      'Thing 2', 'Thing 3', 'Thing 4', 'Thing 5',
+  #                      'Thing 1', 'Thing 2', 'Thing 3', 'Thing 1',
+  #                      'Thing 1', 'Thing 5', 'Thing 4', 'Thing 7',
+  #                      'Thing 5', 'Thing 8', 'Thing 9', 'Thing 10',
+  #                      'Thing 1', 'Thing 5', 'Thing 7', 'Thing 9',
+  #                      'Thing 2', 'Thing 3', 'Thing 8', 'Thing 9',
+  #                      'Thing 3', 'Thing 4', 'Thing 8', 'Thing 10',
+  #                      'Thing 1', 'Thing 5', 'Thing 4', 'Thing 7',
+  #                      'Thing 5', 'Thing 4', 'Thing 7', 'Thing 9',
+  #                      'Thing 1', 'Thing 3', 'Thing 7', 'Thing 10',
+  #                      'Thing 2', 'Thing 3', 'Thing 4', 'Thing 7',
+  #                      'Thing 3', 'Thing 5', 'Thing 8', 'Thing 9',
+  #                      'Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
+  #
+  #   # names = Order.all.map do |order|
+  #   #   if order.items
+  #   #     order.items.map { |item| item.name }
+  #   #   end
+  #   # end
+  #   #
+  #   # names = names.flatten
+  #   names = Order.joins(:items).pluck(:name)
+  #
+  #   expect(names).to eq(expected_result)
+  # end
+
+  # it 'returns the names of users who ordered one specific item' do
+  #   expected_result = [user_3.name, user_2.name]
+  #
+  #   # users = ActiveRecord::Base.connection.execute("
+  #   #   select
+  #   #     distinct users.name
+  #   #   from users
+  #   #     join orders on orders.user_id=users.id
+  #   #     join order_items ON order_items.order_id=orders.id
+  #   #   where order_items.item_id=#{item_8.id}
+  #   #   ORDER BY users.name")
+  #   # users = users.map {|u| u['name']}
+  #
+  #   users = User.joins(:order_items).where('order_items.item_id = ?', item_8.id).distinct.pluck(:name)
+  #
+  #   expect(users).to eq(expected_result)
+  # end
+
+  # it 'returns the name of items associated with a specific order' do
+  #   expected_result = ['Thing 1', 'Thing 4', 'Thing 5', 'Thing 7']
+  #
+  #   # names = Order.last.items.all.map(&:name)
+  #
+  #   names = Order.select(:name).joins(:items).where("order_id = '15'").pluck(:name)
+  #
+  #   expect(names).to eq(expected_result)
+  # end
 
   it 'returns the sorted names of items for a user order' do
     expected_result = ['Thing 3', 'Thing 4', 'Thing 8', 'Thing 10']
@@ -587,7 +519,7 @@ describe 'ActiveRecord Obstacle Course' do
     expect(data[12].item_count).to eq(4)
   end
 
-  xit 'returns the names of items that have been ordered without n+1 queries' do
+  it 'returns the names of items that have been ordered without n+1 queries' do
     # What is an n+1 query?
     # This video is older, but the concepts explained are still relevant:
     # http://railscasts.com/episodes/372-bullet
@@ -598,7 +530,7 @@ describe 'ActiveRecord Obstacle Course' do
     Bullet.start_request
 
     # ------------------------------------------------------
-    orders = Order.all # Edit only this line
+    orders = Order.includes(:items) # Edit only this line
     # ------------------------------------------------------
 
     # Do not edit below this line
